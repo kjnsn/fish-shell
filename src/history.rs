@@ -50,9 +50,10 @@ use crate::{
     fallback::fish_mkstemp_cloexec,
     fds::wopen_cloexec,
     flog::{FLOG, FLOGF},
+    future_feature_flags::{feature_test, FeatureFlag},
     global_safety::RelaxedAtomicBool,
     history::file::{append_history_item_to_buffer, HistoryFileContents},
-    history_v2::HistoryV2,
+    history_v2::{HistoryV2, SaveableHistoryItem},
     io::IoStreams,
     operation_context::{OperationContext, EXPANSION_LIMIT_BACKGROUND},
     parse_constants::{ParseTreeFlags, StatementDecoration},
@@ -233,6 +234,12 @@ pub struct HistoryItem {
     identifier: HistoryIdentifier,
     /// Whether to write this item to disk.
     persist_mode: PersistenceMode,
+}
+
+impl SaveableHistoryItem for HistoryItem {
+    fn serialize(&self) -> String {
+        String::new()
+    }
 }
 
 impl HistoryItem {
@@ -797,6 +804,11 @@ impl HistoryImpl {
         let Some(history_path) = history_filename(&self.name, L!("")) else {
             return true;
         };
+
+        // Use v2
+        if feature_test(FeatureFlag::history_v2) {
+            return true;
+        }
 
         // We are going to open the file, lock it, append to it, and then close it
         // After locking it, we need to stat the file at the path; if there is a new file there, it
