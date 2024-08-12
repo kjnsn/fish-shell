@@ -51,6 +51,7 @@ pub mod future_feature_flags;
 pub mod global_safety;
 pub mod highlight;
 pub mod history;
+pub mod history_v2;
 pub mod input;
 pub mod input_common;
 pub mod io;

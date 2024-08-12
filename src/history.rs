@@ -52,6 +52,7 @@ use crate::{
     flog::{FLOG, FLOGF},
     global_safety::RelaxedAtomicBool,
     history::file::{append_history_item_to_buffer, HistoryFileContents},
+    history_v2::HistoryV2,
     io::IoStreams,
     operation_context::{OperationContext, EXPANSION_LIMIT_BACKGROUND},
     parse_constants::{ParseTreeFlags, StatementDecoration},
@@ -379,6 +380,8 @@ struct HistoryImpl {
     loaded_old: bool, // false
     /// List of old items, as offsets into out mmap data.
     old_item_offsets: VecDeque<usize>,
+    /// Link to the v2 history. Only used if the `history_v2` flag is enabled.
+    history_v2: Option<HistoryV2>,
 }
 
 /// If set, we gave up on file locking because it took too long.
@@ -982,6 +985,7 @@ impl HistoryImpl {
             countdown_to_vacuum: None,
             loaded_old: false,
             old_item_offsets: VecDeque::new(),
+            history_v2: None,
         }
     }
 
