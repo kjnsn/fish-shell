@@ -27,6 +27,9 @@ pub enum FeatureFlag {
 
     /// Remove `test`'s one and zero arg mode (make `test -n` return false etc)
     test_require_arg,
+
+    /// Use the reworked history implementation.
+    history_v2,
 }
 
 struct Features {
@@ -107,6 +110,14 @@ pub const METADATA: &[FeatureMetadata] = &[
         default_value: false,
         read_only: false,
     },
+    FeatureMetadata {
+        flag: FeatureFlag::history_v2,
+        name: L!("history-v2"),
+        groups: L!("3.8"),
+        description: L!("use the experimental history system rewrite"),
+        default_value: false,
+        read_only: true,
+    },
 ];
 
 thread_local!(
@@ -168,6 +179,7 @@ impl Features {
                 AtomicBool::new(METADATA[3].default_value),
                 AtomicBool::new(METADATA[4].default_value),
                 AtomicBool::new(METADATA[5].default_value),
+                AtomicBool::new(METADATA[6].default_value),
             ],
         }
     }
